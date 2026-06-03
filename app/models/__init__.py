@@ -2,6 +2,7 @@
 from .auth import Password, Permission, Role, RolePermission, UserRole
 from .mixins import Base, TimestampMixin, UUIDMixin
 from .user import User
+from .bird import Bird
 
 __all__ = [
     # Base infrastructure
@@ -16,4 +17,5 @@ __all__ = [
     # User model
     "User",
     "UserRole",
+    "Bird",
 ]

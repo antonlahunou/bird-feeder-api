@@ -9,7 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .core.auth import ALGORITHM, SECRET_KEY
-from .core.db import SessionLocal, engine
+from .core.db import SessionLocal, engine, init_db
 from .models.mixins import Base
 from .models.user import User
 
