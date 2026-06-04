@@ -1,18 +1,14 @@
-from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from .api.birds import router as birds_router
-from .core.db import init_db
+from app.api import router as birds_router
+from app.core.database import engine, Base
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Startup
-    await init_db()
-    yield
-    # Shutdown (можно оставить пустым или закрыть соединения)
+Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Bird Feeder API", lifespan=lifespan)
+app = FastAPI(title="Bird Feeder API")
+
 app.include_router(birds_router)
 
+
 @app.get("/health")
-async def health():
+def health():
     return {"status": "ok"}

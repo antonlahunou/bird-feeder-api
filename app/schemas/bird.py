@@ -2,7 +2,10 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 
-class BirdBase(BaseModel):
+
+class BirdCreate(BaseModel):
+    device_id: str
+    detection_type: str
     species: str
     confidence: Optional[float] = None
     photo_url: Optional[str] = None
@@ -10,20 +13,11 @@ class BirdBase(BaseModel):
     location_lat: Optional[float] = None
     location_lon: Optional[float] = None
 
-class BirdCreate(BirdBase):
-    device_id: str
-    detection_type: str  # 'audio' or 'video'
 
-class BirdUpdate(BirdBase):
-    pass
-
-class BirdInDB(BirdBase):
+class BirdResponse(BirdCreate):
     id: int
-    device_id: str
-    detection_type: str
     detected_at: datetime
     created_at: datetime
-    updated_at: datetime
 
     class Config:
         from_attributes = True
