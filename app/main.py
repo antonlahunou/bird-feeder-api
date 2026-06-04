@@ -1,16 +1,18 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
-
-from .api.auth import router as auth_router
-from .api.users import router as users_router
 from .api.birds import router as birds_router
-from .deps import lifespan
+from .core.db import init_db
 
-app: FastAPI = FastAPI(title="FastAPI + SQLAlchemy Async + Alembic", lifespan=lifespan)
-app.include_router(users_router)
-app.include_router(auth_router)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    await init_db()
+    yield
+    # Shutdown (можно оставить пустым или закрыть соединения)
+
+app = FastAPI(title="Bird Feeder API", lifespan=lifespan)
 app.include_router(birds_router)
 
-
 @app.get("/health")
-async def health() -> dict[str, str]:
+async def health():
     return {"status": "ok"}
