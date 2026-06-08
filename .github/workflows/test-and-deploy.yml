@@ -18,15 +18,22 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/antonlahunou/beautiful_framework/actions/workflows/run-tests.yml/dispatches \
             -d '{"ref":"main", "inputs":{"environment":"staging"}}'
-          
-          sleep 2
-          
+
+          echo "✅ Tests triggered, waiting 10 seconds for the run to start..."
+          sleep 10
+
           RUN_ID=$(curl -s \
             -H "Authorization: token ${{ secrets.WORKFLOW_DISPATCH_PAT }}" \
             -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/antonlahunou/beautiful_framework/actions/runs?branch=main&per_page=1 \
-            | jq -r '.workflow_runs[0].id')
-          
+            "https://api.github.com/repos/antonlahunou/beautiful_framework/actions/runs?branch=main&per_page=1&event=workflow_dispatch" \
+            | jq -r '.workflow_runs[0].id // empty')
+
+          if [ -z "$RUN_ID" ]; then
+            echo "❌ Failed to get run ID. Tests might not have started."
+            exit 1
+          fi
+
+          echo "✅ Found run ID: $RUN_ID"
           echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
 
       - name: Wait for tests to complete
