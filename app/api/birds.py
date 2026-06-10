@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from app.core.database import SessionLocal
 from app.models.bird import Bird
-from app.schemas.bird import BirdCreate, BirdResponse
+from app.schemas.bird import BirdCreate, BirdResponse, BirdFilterParams
 
 router = APIRouter(prefix="/birds", tags=["birds"])
 
@@ -25,8 +25,24 @@ def create_bird(bird: BirdCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/", response_model=list[BirdResponse])
-def get_birds(db: Session = Depends(get_db)):
-    return db.query(Bird).all()
+def get_birds(
+        filters: BirdFilterParams = Depends(),
+        db: Session = Depends(get_db),
+):
+    query = db.query(Bird)
+
+    if filters.species:
+        query = query.filter(Bird.species.ilike(f"%{filters.species}%"))
+    if filters.device_id:
+        query = query.filter(Bird.device_id == filters.device_id)
+    if filters.from_date:
+        query = query.filter(Bird.detected_at >= filters.from_date)
+    if filters.to_date:
+        query = query.filter(Bird.detected_at <= filters.to_date)
+
+    query = query.offset(filters.skip).limit(min(filters.limit, 100))
+
+    return query.all()
 
 
 @router.get("/{bird_id}", response_model=BirdResponse)
