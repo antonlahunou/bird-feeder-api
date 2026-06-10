@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional
 
 
@@ -43,3 +43,15 @@ class BirdResponse(BirdCreate):
 
     class Config:
         from_attributes = True
+
+
+class BirdFilterParams(BaseModel):
+    skip: int = 0
+    limit: int = 20
+    species: Optional[str] = None
+    device_id: Optional[str] = None
+    from_date: Optional[date] = None
+    to_date: Optional[date] = None
+
+    class Config:
+        extra = "forbid"
